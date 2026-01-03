@@ -1,3 +1,4 @@
+
 export interface Event {
   id: string;
   name: string;
@@ -63,6 +64,10 @@ export interface User {
   tier: 'free' | 'pro';
   email: string;
   avatar?: string;
+  // Matchmaking specific fields
+  jobTitle?: string;
+  industry?: string;
+  goals?: string;
 }
 
 export interface Integration {
@@ -72,4 +77,22 @@ export interface Integration {
   icon: string;
   connected: boolean;
   description: string;
+}
+
+// Matchmaking specific types
+export interface Exhibitor {
+  id: string;
+  name: string;
+  industry: string;
+  description: string;
+  offerings: string[]; // What they sell
+  targetAudience: string[]; // Who they want to meet
+  boothLocation: string;
+  image: string;
+}
+
+export interface MatchResult {
+  exhibitorId: string;
+  matchScore: number; // 0-100
+  reasoning: string;
 }

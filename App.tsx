@@ -1,20 +1,23 @@
+
 import React, { useState, useMemo } from 'react';
 import Hero from './components/Hero';
 import EventCard from './components/EventCard';
 import SponsorshipCard from './components/SponsorshipCard';
 import OrganizerDashboard from './components/OrganizerDashboard';
+import MatchmakingDashboard from './components/MatchmakingDashboard'; // Import new component
 import ChatWidget from './components/ChatWidget';
 import Footer from './components/Footer';
 import LoginModal from './components/LoginModal';
 import { EVENTS_DATA, EVENT_CATEGORIES, SPONSORSHIPS_DATA, TRANSLATIONS } from './constants';
 import { EventCategory, User, Language } from './types';
 import { semanticSearchEvents } from './services/geminiService';
-import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut } from 'lucide-react';
+import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut, Users } from 'lucide-react';
 
 enum ViewMode {
   DIRECTORY = 'Directory',
   SPONSORSHIPS = 'Sponsorships',
-  DASHBOARD = 'Organizer Dashboard'
+  DASHBOARD = 'Organizer Dashboard',
+  MATCHMAKING = 'Matchmaking' // Add new ViewMode
 }
 
 const App: React.FC = () => {
@@ -96,6 +99,15 @@ const App: React.FC = () => {
     }
   };
 
+  // Helper for access control to Matchmaking
+  const handleMatchmakingAccess = () => {
+     if (!user) {
+       setShowLoginModal(true);
+     } else {
+       setViewMode(ViewMode.MATCHMAKING);
+     }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-mantis-500/30">
       
@@ -105,6 +117,7 @@ const App: React.FC = () => {
           onClose={() => setShowLoginModal(false)}
           onLogin={(userData) => {
             setUser(userData);
+            // Default redirection based on where they were trying to go, simple logic here
             setViewMode(ViewMode.DASHBOARD);
           }}
         />
@@ -145,6 +158,17 @@ const App: React.FC = () => {
                    {t.navSponsorships}
                  </button>
                  <button
+                    onClick={handleMatchmakingAccess}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1 ${
+                      viewMode === ViewMode.MATCHMAKING
+                        ? 'bg-slate-700 text-white shadow-sm' 
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                 >
+                   {t.navMatchmaking}
+                   <span className="bg-mantis-500 text-slate-900 text-[9px] px-1 rounded font-bold">AI</span>
+                 </button>
+                 <button
                     onClick={handleDashboardAccess}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1 ${
                       viewMode === ViewMode.DASHBOARD
@@ -153,7 +177,6 @@ const App: React.FC = () => {
                     }`}
                  >
                    {t.navDashboard}
-                   {user && <span className="w-1.5 h-1.5 bg-mantis-500 rounded-full"></span>}
                  </button>
             </div>
 
@@ -336,6 +359,11 @@ const App: React.FC = () => {
             </div>
             <OrganizerDashboard user={user} />
           </div>
+        )}
+
+        {/* VIEW: MATCHMAKING DASHBOARD */}
+        {viewMode === ViewMode.MATCHMAKING && user && (
+           <MatchmakingDashboard user={user} />
         )}
 
       </main>

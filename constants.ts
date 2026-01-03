@@ -1,4 +1,5 @@
-import { Event, EventCategory, Sponsorship, Integration } from './types';
+
+import { Event, EventCategory, Sponsorship, Integration, Exhibitor } from './types';
 
 export const EVENTS_DATA: Event[] = [
   {
@@ -109,6 +110,60 @@ export const INTEGRATIONS_DATA: Integration[] = [
   { id: '5', name: 'Slack', category: 'Communication', icon: 'Hash', connected: true, description: 'Team notifications for ticket sales.' },
 ];
 
+export const EXHIBITORS_DATA: Exhibitor[] = [
+  {
+    id: 'e1',
+    name: 'CloudScale SEA',
+    industry: 'Cloud Computing',
+    description: 'Enterprise cloud infrastructure for high-growth startups.',
+    offerings: ['Cloud Hosting', 'Serverless', 'Database Management'],
+    targetAudience: ['CTOs', 'Developers', 'Startups'],
+    boothLocation: 'A-12',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'e2',
+    name: 'PayFast Indo',
+    industry: 'Fintech',
+    description: 'Seamless payment gateway aggregation for Indonesian e-commerce.',
+    offerings: ['Payment Gateway', 'QRIS Integration', 'Cross-border FX'],
+    targetAudience: ['E-commerce Merchants', 'CFOs', 'Retailers'],
+    boothLocation: 'B-05',
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'e3',
+    name: 'GreenPack Solutions',
+    industry: 'Sustainability',
+    description: 'Biodegradable packaging for food and retail logistics.',
+    offerings: ['Eco Packaging', 'Supply Chain Consulting'],
+    targetAudience: ['Logistics Managers', 'F&B Owners'],
+    boothLocation: 'C-22',
+    image: 'https://images.unsplash.com/photo-1605600659873-d808a13a4d2a?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'e4',
+    name: 'AI Recruit',
+    industry: 'HR Tech',
+    description: 'Automated talent scouting and screening using Generative AI.',
+    offerings: ['HR Software', 'Recruitment Tools'],
+    targetAudience: ['HR Directors', 'Recruiters'],
+    boothLocation: 'A-15',
+    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'e5',
+    name: 'Mekong Ventures',
+    industry: 'Venture Capital',
+    description: 'Seed stage funding for Vietnamese and Thai startups.',
+    offerings: ['Seed Funding', 'Mentorship'],
+    targetAudience: ['Founders', 'Startup CEOs'],
+    boothLocation: 'VIP-01',
+    image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?auto=format&fit=crop&q=80&w=400'
+  }
+];
+
+
 export const TRANSLATIONS = {
   en: {
     heroTitle: "Upcoming SEA Events",
@@ -117,6 +172,7 @@ export const TRANSLATIONS = {
     navDirectory: "Directory",
     navSponsorships: "Sponsorships",
     navDashboard: "Organizer Dashboard",
+    navMatchmaking: "AI Matchmaking",
     login: "Login",
     createEvent: "Create Event",
     aiSearch: "AI Search",
@@ -131,6 +187,7 @@ export const TRANSLATIONS = {
     navDirectory: "Direktori",
     navSponsorships: "Sponsor",
     navDashboard: "Dasbor Penyelenggara",
+    navMatchmaking: "Pencocokan AI",
     login: "Masuk",
     createEvent: "Buat Acara",
     aiSearch: "Cari AI",
@@ -145,6 +202,7 @@ export const TRANSLATIONS = {
     navDirectory: "ไดเรกทอรี",
     navSponsorships: "การสนับสนุน",
     navDashboard: "แดชบอร์ดผู้จัดงาน",
+    navMatchmaking: "จับคู่ AI",
     login: "เข้าสู่ระบบ",
     createEvent: "สร้างกิจกรรม",
     aiSearch: "ค้นหา AI",
@@ -159,6 +217,7 @@ export const TRANSLATIONS = {
     navDirectory: "目錄",
     navSponsorships: "贊助",
     navDashboard: "組織者儀表板",
+    navMatchmaking: "AI 配對",
     login: "登錄",
     createEvent: "創建活動",
     aiSearch: "AI 搜尋",

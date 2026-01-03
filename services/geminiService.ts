@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import { Event } from "../types";
+import { Event, Exhibitor, MatchResult, User } from "../types";
 
 const createClient = () => {
   if (!process.env.API_KEY) {
@@ -107,5 +108,73 @@ export const chatWithAiAssistant = async (
     return response.text || "I didn't catch that.";
   } catch (error) {
     return "I'm having trouble connecting to the server.";
+  }
+};
+
+// 4. B2B Smart Matchmaking System
+export const calculateMatches = async (
+  user: User,
+  exhibitors: Exhibitor[]
+): Promise<MatchResult[]> => {
+  const ai = createClient();
+  if (!ai) return [];
+
+  const exhibitorContext = exhibitors.map(e => ({
+    id: e.id,
+    name: e.name,
+    industry: e.industry,
+    description: e.description,
+    offerings: e.offerings.join(", "),
+    targetAudience: e.targetAudience.join(", ")
+  }));
+
+  const userContext = {
+    role: user.jobTitle || "Attendee",
+    industry: user.industry || "General",
+    goals: user.goals || "Networking and discovering new technology"
+  };
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `
+        You are a world-class B2B Matchmaking Engine for a Trade Show.
+        
+        Attendee Profile:
+        ${JSON.stringify(userContext)}
+
+        Exhibitor List:
+        ${JSON.stringify(exhibitorContext)}
+
+        Task:
+        1. Analyze the attendee's goals and industry.
+        2. Evaluate each exhibitor for compatibility.
+        3. Assign a "matchScore" from 0 to 100.
+        4. Provide a "reasoning" (max 20 words) explaining why this is a good business match.
+        5. Return ONLY exhibitors with a score > 50.
+        6. Sort by score descending.
+      `,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              exhibitorId: { type: Type.STRING },
+              matchScore: { type: Type.NUMBER },
+              reasoning: { type: Type.STRING }
+            },
+            required: ["exhibitorId", "matchScore", "reasoning"]
+          }
+        }
+      }
+    });
+
+    const matches = JSON.parse(response.text || "[]") as MatchResult[];
+    return matches;
+  } catch (error) {
+    console.error("Matchmaking Error:", error);
+    return [];
   }
 };
