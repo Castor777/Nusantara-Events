@@ -7,8 +7,11 @@ export interface Event {
   date: string;
   location: string;
   priceRange: string;
+  basePrice: number;
+  currency: 'SGD' | 'IDR' | 'THB' | 'USD';
   predictedTurnout: number;
-  sustainabilityScore: 'A' | 'B' | 'C'; // Eco-impact rating
+  historicalTurnout?: number[]; // Past 3 years
+  sustainabilityScore: 'A' | 'B' | 'C';
   website: string;
   tags: string[];
   featured?: boolean;
@@ -21,7 +24,44 @@ export interface Sponsorship {
   tier: 'Platinum' | 'Gold' | 'Silver';
   amount: string;
   description: string;
-  matchScore?: number; // AI calculated match
+}
+
+export interface Registration {
+  id: string;
+  eventId: string;
+  attendeeName: string;
+  email: string;
+  phone: string; 
+  waOptIn: boolean;
+  waStatus: 'Delivered' | 'Pending' | 'Failed';
+  emailStatus: 'Sent' | 'Opened' | 'Bounced';
+  ticketType: 'Standard' | 'VIP' | 'Group';
+  paymentStatus: 'Paid' | 'Pending';
+  paymentMethod: string;
+  amountPaid: number;
+  timestamp: string;
+  qrCode: string;
+  aiBriefing?: string; // Stored personalized advice
+}
+
+export interface PredictionResult {
+  estimatedTotal: number;
+  confidenceScore: number;
+  factors: string[];
+  recommendation: string;
+}
+
+export interface PostEventReport {
+  attendanceActual: number;
+  attendancePredicted: number;
+  revenueTotal: number;
+  costTotal: number;
+  roi: number;
+  engagementScore: number; // 0-100
+  briefingOpenRate: number; // Percentage
+  networkingConnections: number;
+  aiExecutiveSummary: string;
+  sustainabilityImpact: string;
 }
 
 export enum EventCategory {
@@ -33,10 +73,45 @@ export enum EventCategory {
   STARTUP = 'Startup & VC',
 }
 
-export interface SearchState {
-  query: string;
-  isAiSearching: boolean;
-  results: string[] | null; // ID list
+export type Language = 'en' | 'id' | 'th' | 'zh';
+
+export interface User {
+  name: string;
+  role: 'organizer' | 'attendee';
+  tier: 'free' | 'pro';
+  email: string;
+  phone?: string;
+  avatar?: string;
+  jobTitle?: string;
+  industry?: string;
+  goals?: string;
+  company?: string;
+}
+
+export interface Integration {
+  id: string;
+  name: string;
+  category: 'Storage' | 'CRM' | 'Communication' | 'Support' | 'Database';
+  icon: string;
+  connected: boolean;
+  description: string;
+}
+
+export interface Exhibitor {
+  id: string;
+  name: string;
+  industry: string;
+  description: string;
+  offerings: string[];
+  targetAudience: string[];
+  boothLocation: string;
+  image: string;
+}
+
+export interface MatchResult {
+  exhibitorId: string;
+  matchScore: number;
+  reasoning: string;
 }
 
 export interface ChatMessage {
@@ -45,54 +120,13 @@ export interface ChatMessage {
 }
 
 export interface Tool {
+  id: string;
   name: string;
   description: string;
   category: string;
-  pricing: string;
+  image: string;
   website: string;
   tags: string[];
-  image: string;
   featured?: boolean;
-}
-
-// New Types for Platform Features
-export type Language = 'en' | 'id' | 'th' | 'zh';
-
-export interface User {
-  name: string;
-  role: 'organizer' | 'attendee';
-  tier: 'free' | 'pro';
-  email: string;
-  avatar?: string;
-  // Matchmaking specific fields
-  jobTitle?: string;
-  industry?: string;
-  goals?: string;
-}
-
-export interface Integration {
-  id: string;
-  name: string;
-  category: 'Storage' | 'CRM' | 'Communication' | 'Support';
-  icon: string;
-  connected: boolean;
-  description: string;
-}
-
-// Matchmaking specific types
-export interface Exhibitor {
-  id: string;
-  name: string;
-  industry: string;
-  description: string;
-  offerings: string[]; // What they sell
-  targetAudience: string[]; // Who they want to meet
-  boothLocation: string;
-  image: string;
-}
-
-export interface MatchResult {
-  exhibitorId: string;
-  matchScore: number; // 0-100
-  reasoning: string;
+  pricing: 'Free' | 'Freemium' | 'Paid';
 }

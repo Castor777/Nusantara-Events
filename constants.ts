@@ -10,7 +10,10 @@ export const EVENTS_DATA: Event[] = [
     date: 'Oct 12-14, 2024',
     location: 'Marina Bay Sands, Singapore',
     priceRange: 'S$450 - S$1,200',
+    basePrice: 450,
+    currency: 'SGD',
     predictedTurnout: 15000,
+    historicalTurnout: [12000, 13500, 14200],
     sustainabilityScore: 'A',
     website: '#',
     tags: ['AI', 'Networking', 'Singapore'],
@@ -25,7 +28,10 @@ export const EVENTS_DATA: Event[] = [
     date: 'Nov 05, 2024',
     location: 'JCC Senayan, Jakarta',
     priceRange: 'IDR 2,500,000',
+    basePrice: 2500000,
+    currency: 'IDR',
     predictedTurnout: 8500,
+    historicalTurnout: [6000, 7500, 8100],
     sustainabilityScore: 'B',
     website: '#',
     tags: ['Fintech', 'Banking', 'Indonesia'],
@@ -39,40 +45,14 @@ export const EVENTS_DATA: Event[] = [
     date: 'Sep 20-22, 2024',
     location: 'BITEC, Bangkok',
     priceRange: '฿1,500',
+    basePrice: 1500,
+    currency: 'THB',
     predictedTurnout: 12000,
+    historicalTurnout: [10000, 11000, 11500],
     sustainabilityScore: 'A',
     website: '#',
     tags: ['Creative', 'Design', 'Thailand'],
     image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: '4',
-    name: 'Future Mobility Asia',
-    description: 'Electric vehicles and autonomous transport trade show.',
-    category: EventCategory.B2B,
-    date: 'Dec 01, 2024',
-    location: 'Kuala Lumpur Conv. Ctr',
-    priceRange: 'RM 300',
-    predictedTurnout: 5000,
-    sustainabilityScore: 'A',
-    website: '#',
-    tags: ['EV', 'Transport', 'Malaysia'],
-    featured: true,
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: '5',
-    name: 'Vietnam Startup Day',
-    description: 'Where founders meet VCs. Pitch competitions and deal-flow sessions.',
-    category: EventCategory.STARTUP,
-    date: 'Aug 15, 2024',
-    location: 'Ho Chi Minh City',
-    priceRange: 'Free / VIP $100',
-    predictedTurnout: 3000,
-    sustainabilityScore: 'C',
-    website: '#',
-    tags: ['Startup', 'VC', 'Vietnam'],
-    image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=800'
   }
 ];
 
@@ -83,31 +63,17 @@ export const SPONSORSHIPS_DATA: Sponsorship[] = [
     tier: 'Platinum',
     amount: 'S$50,000',
     description: 'Main stage branding, 20 VIP tickets, and private networking booth.',
-  },
-  {
-    id: 's2',
-    eventName: 'Fintech Jakarta Summit',
-    tier: 'Gold',
-    amount: 'IDR 150,000,000',
-    description: 'Lanyard sponsorship, workshop hosting rights, and app banner.',
-  },
-  {
-    id: 's3',
-    eventName: 'Vietnam Startup Day',
-    tier: 'Silver',
-    amount: 'USD 5,000',
-    description: 'Coffee break sponsor and logo on tote bags.',
   }
 ];
 
 export const EVENT_CATEGORIES = Object.values(EventCategory);
 
 export const INTEGRATIONS_DATA: Integration[] = [
-  { id: '1', name: 'Google Drive', category: 'Storage', icon: 'HardDrive', connected: true, description: 'Store event assets and attendee lists.' },
-  { id: '2', name: 'Dropbox', category: 'Storage', icon: 'Box', connected: false, description: 'Backup venue plans and contracts.' },
-  { id: '3', name: 'Zendesk', category: 'Support', icon: 'MessageSquare', connected: false, description: 'Manage attendee support tickets.' },
-  { id: '4', name: 'Salesforce', category: 'CRM', icon: 'Database', connected: true, description: 'Sync lead generation data.' },
-  { id: '5', name: 'Slack', category: 'Communication', icon: 'Hash', connected: true, description: 'Team notifications for ticket sales.' },
+  { id: 'n8n', name: 'n8n Workflow Engine', category: 'Communication', icon: 'Settings', connected: true, description: 'Master orchestrator for WhatsApp, Email, and Database flows.' },
+  { id: '1', name: 'PostgreSQL Cloud', category: 'Database', icon: 'Database', connected: true, description: 'Live attendee logging for audit & PDPA compliance.' },
+  { id: '3', name: 'WhatsApp Business', category: 'Support', icon: 'MessageSquare', connected: true, description: 'Automated ticket delivery and check-in updates.' },
+  { id: '4', name: 'Salesforce', category: 'CRM', icon: 'Database', connected: true, description: 'Sync lead generation data for exhibitor follow-ups.' },
+  { id: '6', name: 'Google Sheets', category: 'Storage', icon: 'HardDrive', connected: false, description: 'Quick export for on-ground staff usage.' },
 ];
 
 export const EXHIBITORS_DATA: Exhibitor[] = [
@@ -120,49 +86,8 @@ export const EXHIBITORS_DATA: Exhibitor[] = [
     targetAudience: ['CTOs', 'Developers', 'Startups'],
     boothLocation: 'A-12',
     image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 'e2',
-    name: 'PayFast Indo',
-    industry: 'Fintech',
-    description: 'Seamless payment gateway aggregation for Indonesian e-commerce.',
-    offerings: ['Payment Gateway', 'QRIS Integration', 'Cross-border FX'],
-    targetAudience: ['E-commerce Merchants', 'CFOs', 'Retailers'],
-    boothLocation: 'B-05',
-    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 'e3',
-    name: 'GreenPack Solutions',
-    industry: 'Sustainability',
-    description: 'Biodegradable packaging for food and retail logistics.',
-    offerings: ['Eco Packaging', 'Supply Chain Consulting'],
-    targetAudience: ['Logistics Managers', 'F&B Owners'],
-    boothLocation: 'C-22',
-    image: 'https://images.unsplash.com/photo-1605600659873-d808a13a4d2a?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 'e4',
-    name: 'AI Recruit',
-    industry: 'HR Tech',
-    description: 'Automated talent scouting and screening using Generative AI.',
-    offerings: ['HR Software', 'Recruitment Tools'],
-    targetAudience: ['HR Directors', 'Recruiters'],
-    boothLocation: 'A-15',
-    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 'e5',
-    name: 'Mekong Ventures',
-    industry: 'Venture Capital',
-    description: 'Seed stage funding for Vietnamese and Thai startups.',
-    offerings: ['Seed Funding', 'Mentorship'],
-    targetAudience: ['Founders', 'Startup CEOs'],
-    boothLocation: 'VIP-01',
-    image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?auto=format&fit=crop&q=80&w=400'
   }
 ];
-
 
 export const TRANSLATIONS = {
   en: {
@@ -171,7 +96,7 @@ export const TRANSLATIONS = {
     searchPlaceholder: "Find events (e.g., 'Fintech in Jakarta')...",
     navDirectory: "Directory",
     navSponsorships: "Sponsorships",
-    navDashboard: "Organizer Dashboard",
+    navDashboard: "Dashboard",
     navMatchmaking: "AI Matchmaking",
     login: "Login",
     createEvent: "Create Event",
@@ -186,8 +111,8 @@ export const TRANSLATIONS = {
     searchPlaceholder: "Cari acara (cth. 'Fintech di Jakarta')...",
     navDirectory: "Direktori",
     navSponsorships: "Sponsor",
-    navDashboard: "Dasbor Penyelenggara",
-    navMatchmaking: "Pencocokan AI",
+    navDashboard: "Dasbor",
+    navMatchmaking: "AI Matchmaking",
     login: "Masuk",
     createEvent: "Buat Acara",
     aiSearch: "Cari AI",
@@ -201,8 +126,8 @@ export const TRANSLATIONS = {
     searchPlaceholder: "ค้นหางาน (เช่น 'Fintech ในจาการ์ตา')...",
     navDirectory: "ไดเรกทอรี",
     navSponsorships: "การสนับสนุน",
-    navDashboard: "แดชบอร์ดผู้จัดงาน",
-    navMatchmaking: "จับคู่ AI",
+    navDashboard: "แดชบอร์ด",
+    navMatchmaking: "AI Matchmaking",
     login: "เข้าสู่ระบบ",
     createEvent: "สร้างกิจกรรม",
     aiSearch: "ค้นหา AI",
@@ -216,7 +141,7 @@ export const TRANSLATIONS = {
     searchPlaceholder: "搜尋活動（例如“雅加達金融科技”）...",
     navDirectory: "目錄",
     navSponsorships: "贊助",
-    navDashboard: "組織者儀表板",
+    navDashboard: "儀表板",
     navMatchmaking: "AI 配對",
     login: "登錄",
     createEvent: "創建活動",

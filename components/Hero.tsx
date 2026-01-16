@@ -1,15 +1,17 @@
+
 import React, { useState } from 'react';
-import { Search, Sparkles, Loader2 } from 'lucide-react';
+import { Search, Sparkles, Loader2, QrCode } from 'lucide-react';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
 
 interface HeroProps {
   onSearch: (query: string, useAi: boolean) => void;
+  onOpenScanner: () => void;
   isSearching: boolean;
   language: Language;
 }
 
-const Hero: React.FC<HeroProps> = ({ onSearch, isSearching, language }) => {
+const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, language }) => {
   const [inputValue, setInputValue] = useState('');
   const t = TRANSLATIONS[language];
 
@@ -59,6 +61,14 @@ const Hero: React.FC<HeroProps> = ({ onSearch, isSearching, language }) => {
               <div className="flex items-center gap-2 pr-2">
                  <button 
                   type="button"
+                  onClick={onOpenScanner}
+                  className="p-2 text-slate-400 hover:text-mantis-400 transition-colors"
+                  title="Scan QR Code"
+                >
+                  <QrCode size={24} />
+                </button>
+                 <button 
+                  type="button"
                   onClick={handleAiSearch}
                   disabled={isSearching}
                   className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -76,6 +86,10 @@ const Hero: React.FC<HeroProps> = ({ onSearch, isSearching, language }) => {
               </div>
             </div>
           </form>
+          <p className="mt-4 text-[10px] text-slate-500 font-black uppercase tracking-widest flex items-center justify-center gap-2">
+            <span className="w-1 h-1 bg-mantis-500 rounded-full"></span>
+            Automated Management: Scan any event flyer QR to register instantly
+          </p>
         </div>
       </div>
     </div>
