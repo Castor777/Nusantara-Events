@@ -76,7 +76,7 @@ export enum EventCategory {
   STARTUP = 'Startup & VC',
 }
 
-export type Language = 'en' | 'id' | 'th' | 'zh';
+export type Language = 'en' | 'id' | 'th' | 'zh' | 'vi' | 'ms' | 'tl' | 'km' | 'my' | 'lo';
 
 export interface User {
   name: string;

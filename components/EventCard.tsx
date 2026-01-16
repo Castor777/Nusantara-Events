@@ -42,6 +42,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
     }
   };
 
+  // Determine if this event is high-priority for the user
+  const isHighIntent = user && (event.featured || event.predictedTurnout > 10000);
+
   return (
     <>
       {showRegModal && (
@@ -113,9 +116,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
             </div>
             <button 
               onClick={() => setShowRegModal(true)}
-              className="bg-mantis-600 hover:bg-mantis-500 text-white font-black uppercase text-xs tracking-widest py-3 px-6 rounded-xl transition-all shadow-lg shadow-mantis-500/20"
+              className={`${
+                isHighIntent 
+                  ? 'bg-gradient-to-r from-mantis-500 to-emerald-600 hover:from-mantis-400 hover:to-emerald-500 scale-105 shadow-xl shadow-mantis-500/40 ring-2 ring-mantis-500/20 active:scale-95' 
+                  : 'bg-mantis-600 hover:bg-mantis-500 shadow-lg shadow-mantis-500/20'
+              } text-white font-black uppercase text-xs tracking-widest py-3 px-6 rounded-xl transition-all duration-300`}
             >
-              {t.register}
+              {isHighIntent ? 'Register Now' : t.register}
             </button>
           </div>
         </div>

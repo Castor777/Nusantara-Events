@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
 import { chatWithAiAssistant } from '../services/geminiService';
@@ -81,7 +82,7 @@ const ChatWidget: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about events..."
-              className="flex-1 bg-slate-800 border-none rounded-lg px-3 py-2 text-sm text-white focus:ring-1 focus:ring-mantis-500 outline-none"
+              className="flex-1 bg-slate-800 border-none rounded-lg px-3 py-2 text-sm text-white focus:ring-1 focus:ring-mantis-500 outline-none font-medium"
             />
             <button type="submit" className="bg-mantis-600 hover:bg-mantis-500 text-white p-2 rounded-lg transition-colors">
               <Send size={16} />
