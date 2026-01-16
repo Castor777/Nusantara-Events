@@ -39,9 +39,12 @@ export interface Registration {
   paymentStatus: 'Paid' | 'Pending';
   paymentMethod: string;
   amountPaid: number;
+  currency: 'SGD' | 'IDR' | 'THB' | 'USD';
   timestamp: string;
   qrCode: string;
   aiBriefing?: string; // Stored personalized advice
+  checkedIn?: boolean;
+  checkInTime?: string;
 }
 
 export interface PredictionResult {

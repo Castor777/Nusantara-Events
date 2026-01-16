@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import LoginModal from './components/LoginModal';
 import QRScannerModal from './components/QRScannerModal';
 import RegistrationModal from './components/RegistrationModal';
+import LanguageSelector from './components/LanguageSelector';
 import { EVENTS_DATA, EVENT_CATEGORIES, SPONSORSHIPS_DATA, TRANSLATIONS } from './constants';
 import { EventCategory, User, Language, Registration, Event } from './types';
 import { semanticSearchEvents } from './services/geminiService';
@@ -28,7 +29,6 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [showMobileFilter, setShowMobileFilter] = useState(false);
   
   const [user, setUser] = useState<User | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -81,10 +81,23 @@ const App: React.FC = () => {
     return events;
   }, [selectedCategory, searchQuery, aiSearchResults]);
 
+  const getTranslatedCategory = (category: string) => {
+    switch (category) {
+      case 'All Events': return t.allEvents;
+      case 'Technology & AI': return t.tech;
+      case 'Fintech & Crypto': return t.finance;
+      case 'Lifestyle & Culture': return t.lifestyle;
+      case 'B2B Trade Show': return t.b2b;
+      case 'Startup & VC': return t.startup;
+      default: return category;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-mantis-500/30">
       {showLoginModal && (
         <LoginModal 
+          language={language}
           onClose={() => setShowLoginModal(false)}
           onLogin={(userData) => { setUser(userData); setViewMode(ViewMode.DIRECTORY); }}
         />
@@ -114,29 +127,24 @@ const App: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setViewMode(ViewMode.DIRECTORY); }}>
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-mantis-400 to-mantis-600 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-mantis-500/20">N</div>
-              <span className="hidden sm:inline text-xl font-bold tracking-tight">Nusantara Events</span>
+              <span className="hidden sm:inline text-xl font-bold tracking-tight italic uppercase tracking-tighter">Nusantara SEA</span>
             </div>
             
             <div className="hidden md:flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
-              <button onClick={() => setViewMode(ViewMode.DIRECTORY)} className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === ViewMode.DIRECTORY ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navDirectory}</button>
-              <button onClick={() => setViewMode(ViewMode.SPONSORSHIPS)} className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === ViewMode.SPONSORSHIPS ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navSponsorships}</button>
-              <button onClick={() => user ? setViewMode(ViewMode.MATCHMAKING) : setShowLoginModal(true)} className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1 ${viewMode === ViewMode.MATCHMAKING ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navMatchmaking}<span className="bg-mantis-500 text-slate-900 text-[9px] px-1 rounded font-bold">AI</span></button>
-              <button onClick={() => user ? setViewMode(ViewMode.DASHBOARD) : setShowLoginModal(true)} className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1 ${viewMode === ViewMode.DASHBOARD ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
-                {user?.role === 'organizer' ? t.navDashboard : 'My Portal'}
+              <button onClick={() => setViewMode(ViewMode.DIRECTORY)} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${viewMode === ViewMode.DIRECTORY ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navDirectory}</button>
+              <button onClick={() => setViewMode(ViewMode.SPONSORSHIPS)} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${viewMode === ViewMode.SPONSORSHIPS ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navSponsorships}</button>
+              <button onClick={() => user ? setViewMode(ViewMode.MATCHMAKING) : setShowLoginModal(true)} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all flex items-center gap-1 ${viewMode === ViewMode.MATCHMAKING ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navMatchmaking}<span className="bg-mantis-500 text-slate-900 text-[9px] px-1 rounded font-bold">AI</span></button>
+              <button onClick={() => user ? setViewMode(ViewMode.DASHBOARD) : setShowLoginModal(true)} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all flex items-center gap-1 ${viewMode === ViewMode.DASHBOARD ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+                {user?.role === 'organizer' ? t.navDashboard : t.myPortal}
               </button>
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="relative group">
-                <button className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors"><Globe size={16} /><span className="uppercase text-xs font-bold">{language}</span></button>
-                <div className="absolute right-0 top-full mt-2 w-24 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden hidden group-hover:block">
-                  {(['en', 'id', 'th', 'zh'] as Language[]).map(lang => (
-                    <button key={lang} onClick={() => setLanguage(lang)} className={`block w-full text-left px-3 py-2 text-xs hover:bg-slate-700 ${language === lang ? 'text-mantis-400 font-bold' : 'text-slate-300'}`}>
-                      {lang === 'en' ? 'English' : lang === 'id' ? 'Bahasa' : lang === 'th' ? 'ไทย' : '繁體中文'}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <LanguageSelector 
+                currentLanguage={language} 
+                onLanguageChange={(lang) => setLanguage(lang)} 
+              />
+              
               {user ? (
                 <div className="flex items-center gap-3 pl-3 border-l border-slate-700">
                   <div className="flex flex-col items-end hidden sm:flex">
@@ -147,7 +155,7 @@ const App: React.FC = () => {
                   <button onClick={() => { setUser(null); setViewMode(ViewMode.DIRECTORY); }} className="text-slate-400 hover:text-red-400 transition-colors ml-1"><LogOut size={16} /></button>
                 </div>
               ) : (
-                <button onClick={() => setShowLoginModal(true)} className="text-sm font-medium text-slate-300 hover:text-white transition-colors">{t.login}</button>
+                <button onClick={() => setShowLoginModal(true)} className="text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors">{t.login}</button>
               )}
             </div>
           </div>
@@ -161,26 +169,26 @@ const App: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             <aside className={`lg:w-64 flex-shrink-0 hidden lg:block`}>
               <div className="sticky top-24">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Filter size={20} className="text-mantis-400" /> Industries</h3>
+                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><Filter size={16} className="text-mantis-400" /> {t.industries}</h3>
                 <div className="space-y-1">
                   {EVENT_CATEGORIES.map((category) => (
-                    <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{category}</button>
+                    <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{getTranslatedCategory(category)}</button>
                   ))}
                 </div>
               </div>
             </aside>
             <div className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredEvents.map((event) => <EventCard key={event.id} event={event} user={user} onRegister={handleNewRegistration} />)}
+                {filteredEvents.map((event) => <EventCard key={event.id} event={event} user={user} language={language} onRegister={handleNewRegistration} />)}
               </div>
             </div>
           </div>
         )}
         {viewMode === ViewMode.SPONSORSHIPS && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{SPONSORSHIPS_DATA.map((item) => <SponsorshipCard key={item.id} item={item} />)}</div>}
-        {viewMode === ViewMode.DASHBOARD && <OrganizerDashboard user={user} registrations={registrations} />}
-        {viewMode === ViewMode.MATCHMAKING && user && <MatchmakingDashboard user={user} />}
+        {viewMode === ViewMode.DASHBOARD && <OrganizerDashboard user={user} registrations={registrations} language={language} />}
+        {viewMode === ViewMode.MATCHMAKING && user && <MatchmakingDashboard user={user} language={language} />}
       </main>
-      <Footer /><ChatWidget />
+      <Footer language={language} /><ChatWidget />
     </div>
   );
 };

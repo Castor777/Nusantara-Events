@@ -37,10 +37,10 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
       </div>
 
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl mb-6">
+        <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl mb-6 italic uppercase tracking-tighter">
           {t.upcoming} <span className="text-transparent bg-clip-text bg-gradient-to-r from-mantis-400 to-emerald-600">{t.seaEvents}</span>
         </h1>
-        <p className="mx-auto max-w-2xl text-lg text-slate-400 mb-10">
+        <p className="mx-auto max-w-2xl text-lg text-slate-400 mb-10 font-medium leading-relaxed">
           {t.heroSubtitle}
         </p>
 
@@ -53,7 +53,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
               </div>
               <input
                 type="text"
-                className="flex-1 bg-transparent border-none text-white placeholder-slate-400 focus:ring-0 focus:outline-none px-4 py-2 text-lg"
+                className="flex-1 bg-transparent border-none text-white placeholder-slate-500 focus:ring-0 focus:outline-none px-4 py-2 text-lg font-medium"
                 placeholder={t.searchPlaceholder}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
@@ -71,7 +71,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
                   type="button"
                   onClick={handleAiSearch}
                   disabled={isSearching}
-                  className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSearching ? <Loader2 className="animate-spin" size={18}/> : <Sparkles size={18} />}
                   <span className="whitespace-nowrap">{t.aiSearch}</span>
@@ -79,7 +79,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
                 <button 
                   type="submit"
                   disabled={isSearching}
-                  className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-black uppercase text-[10px] tracking-widest transition-colors"
                 >
                   {t.find}
                 </button>
@@ -88,7 +88,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
           </form>
           <p className="mt-4 text-[10px] text-slate-500 font-black uppercase tracking-widest flex items-center justify-center gap-2">
             <span className="w-1 h-1 bg-mantis-500 rounded-full"></span>
-            Automated Management: Scan any event flyer QR to register instantly
+            {t.autoTagline}
           </p>
         </div>
       </div>
