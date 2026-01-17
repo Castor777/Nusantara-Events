@@ -29,7 +29,7 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const [user, setUser] = useState<User | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -96,7 +96,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-mantis-500/30">
       {showLoginModal && (
-        <LoginModal 
+        <LoginModal
           language={language}
           onClose={() => setShowLoginModal(false)}
           onLogin={(userData) => { setUser(userData); setViewMode(ViewMode.DIRECTORY); }}
@@ -104,14 +104,14 @@ const App: React.FC = () => {
       )}
 
       {showScanner && (
-        <QRScannerModal 
-          onClose={() => setShowScanner(false)} 
+        <QRScannerModal
+          onClose={() => setShowScanner(false)}
           onScan={handleQrScan}
         />
       )}
 
       {autoRegisterEvent && (
-        <RegistrationModal 
+        <RegistrationModal
           event={autoRegisterEvent}
           user={user}
           onClose={() => setAutoRegisterEvent(null)}
@@ -125,11 +125,10 @@ const App: React.FC = () => {
       <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setViewMode(ViewMode.DIRECTORY); }}>
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-mantis-400 to-mantis-600 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-mantis-500/20">N</div>
-              <span className="hidden sm:inline text-xl font-bold tracking-tight italic uppercase tracking-tighter">Nusantara SEA</span>
+            <div className="flex items-center cursor-pointer" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setViewMode(ViewMode.DIRECTORY); }}>
+              <img src="/logo_full.png" alt="Nusantara Events" className="h-12 w-auto object-contain" />
             </div>
-            
+
             <div className="hidden md:flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
               <button onClick={() => setViewMode(ViewMode.DIRECTORY)} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${viewMode === ViewMode.DIRECTORY ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navDirectory}</button>
               <button onClick={() => setViewMode(ViewMode.SPONSORSHIPS)} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${viewMode === ViewMode.SPONSORSHIPS ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.navSponsorships}</button>
@@ -140,11 +139,11 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <LanguageSelector 
-                currentLanguage={language} 
-                onLanguageChange={(lang) => setLanguage(lang)} 
+              <LanguageSelector
+                currentLanguage={language}
+                onLanguageChange={(lang) => setLanguage(lang)}
               />
-              
+
               {user ? (
                 <div className="flex items-center gap-3 pl-3 border-l border-slate-700">
                   <div className="flex flex-col items-end hidden sm:flex">
