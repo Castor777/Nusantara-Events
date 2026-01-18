@@ -36,11 +36,31 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
         <div className="absolute top-1/2 -right-20 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[180px] animate-pulse"></div>
       </div>
 
+      {/* Statistics Panel - Aligned with sidebar */}
+      <div className="absolute top-28 left-[max(1rem,calc((100vw-80rem)/2+2rem))] z-10 hidden lg:block">
+        <div className="bg-slate-900/60 backdrop-blur-sm border border-slate-800/50 rounded-xl p-4 space-y-3 w-64">
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-bold text-mantis-400">472</span>
+            <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Events</span>
+          </div>
+          <div className="h-px bg-slate-800"></div>
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-bold text-mantis-400">8</span>
+            <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Countries</span>
+          </div>
+          <div className="h-px bg-slate-800"></div>
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-bold text-mantis-400">30+</span>
+            <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Industries</span>
+          </div>
+        </div>
+      </div>
+
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
         <h1 className="text-5xl font-medium tracking-tight text-white sm:text-7xl lg:text-8xl mb-8 leading-[0.9] font-display">
           <span className="block opacity-60 text-xl sm:text-2xl mb-4 font-sans tracking-[0.4em] uppercase">{t.upcoming}</span>
           <span className="italic text-transparent bg-clip-text bg-gradient-to-br from-white via-mantis-200 to-emerald-600 drop-shadow-2xl">
-            {t.seaEvents}
+            SEA Trade Events
           </span>
         </h1>
         <p className="mx-auto max-w-xl text-lg text-slate-400 mb-12 font-medium leading-relaxed tracking-wide opacity-80 italic">

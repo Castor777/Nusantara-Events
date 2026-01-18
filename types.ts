@@ -31,7 +31,7 @@ export interface Registration {
   eventId: string;
   attendeeName: string;
   email: string;
-  phone: string; 
+  phone: string;
   waOptIn: boolean;
   waStatus: 'Delivered' | 'Pending' | 'Failed';
   emailStatus: 'Sent' | 'Opened' | 'Bounced';
@@ -69,11 +69,62 @@ export interface PostEventReport {
 
 export enum EventCategory {
   ALL = 'All Events',
-  TECH = 'Technology & AI',
-  FINANCE = 'Fintech & Crypto',
-  LIFESTYLE = 'Lifestyle & Culture',
-  B2B = 'B2B Trade Show',
-  STARTUP = 'Startup & VC',
+
+  // Technology & Innovation
+  AI_ML = 'AI & Machine Learning',
+  ICT_TELECOM = 'ICT & Telecom',
+  CONSUMER_ELECTRONICS = 'Consumer Electronics',
+  TECH_INNOVATION = 'Technology & Innovation',
+
+  // Business & Trade
+  B2B_TRADE = 'B2B Trade Shows',
+  FRANCHISING = 'Franchising & Licensing',
+  GENERAL_TRADE = 'General Trade & Investment',
+  BUSINESS_SERVICES = 'Business Services',
+
+  // Manufacturing & Industrial
+  MANUFACTURING = 'Manufacturing & Automation',
+  INDUSTRIAL_MACHINERY = 'Industrial Machinery',
+  LOGISTICS_SHIPPING = 'Logistics & Shipping',
+
+  // Construction & Infrastructure
+  CONSTRUCTION = 'Construction & Building',
+  REAL_ESTATE = 'Real Estate & Property',
+
+  // Energy & Resources
+  GREEN_ENERGY = 'Green Energy & Sustainability',
+  MINING_MINERALS = 'Mining & Minerals',
+  WATER_TECH = 'Water Technology',
+  ENERGY = 'Energy & Power',
+
+  // Food & Hospitality
+  FOOD_BEVERAGE = 'Food & Beverage',
+  HOSPITALITY_TOURISM = 'Hospitality & Tourism',
+  HALAL = 'Halal Products',
+
+  // Lifestyle & Consumer
+  FASHION = 'Fashion & Apparel',
+  BEAUTY = 'Beauty & Cosmetics',
+  FURNITURE_HOME = 'Furniture & Home',
+  JEWELRY = 'Jewelry & Accessories',
+
+  // Finance & Services
+  FINTECH = 'Fintech & Banking',
+  INSURANCE = 'Insurance',
+
+  // Healthcare & Science
+  MEDICAL_PHARMA = 'Medical & Pharma',
+  SCIENCE = 'Science & Research',
+
+  // Agriculture & Animals
+  AGRICULTURE = 'Agriculture & Farming',
+  ANIMALS_PETS = 'Animals & Pets',
+
+  // Other
+  ENTERTAINMENT = 'Entertainment',
+  EDUCATION = 'Education & Training',
+  AEROSPACE_DEFENSE = 'Aerospace & Defense',
+  STARTUP_VC = 'Startup & VC',
 }
 
 export type Language = 'en' | 'id' | 'th' | 'zh' | 'vi' | 'ms' | 'tl' | 'km' | 'my' | 'lo';

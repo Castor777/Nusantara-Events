@@ -17,7 +17,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLogin, language }) =
       name: role === 'organizer' ? (tier === 'pro' ? 'Sarah (Pro)' : 'Budi (Free)') : 'Alice Tan',
       role: role,
       tier: tier,
-      email: role === 'attendance' ? 'alice@example.com' : 'user@example.com',
+      email: role === 'attendee' ? 'alice@example.com' : 'user@example.com',
       avatar: `https://i.pravatar.cc/150?u=${tier + role}`,
       jobTitle: role === 'attendee' ? 'Innovation Lead' : undefined,
       industry: role === 'attendee' ? 'Fintech' : undefined,

@@ -1,15 +1,18 @@
-
 import express from 'express';
-import db from '../db/sqlite.js';
+import { prepare, getDb } from '../db/sqlite.js';
 
 const router = express.Router();
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 // Get All Events
 router.get('/events', (req, res) => {
-    const stmt = db.prepare('SELECT * FROM events');
-    const events = stmt.all();
-    res.json(events);
+    try {
+        const events = prepare('SELECT * FROM events').all();
+        res.json(events);
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        res.status(500).json({ error: 'Failed to fetch events' });
+    }
 });
 
 // Register User for Event
@@ -19,21 +22,18 @@ router.post('/register', (req, res) => {
     try {
         // 1. Check if user exists or create
         let userId;
-        const checkUser = db.prepare('SELECT id FROM users WHERE email = ?');
-        const existingUser = checkUser.get(user.email);
+        const existingUser = prepare('SELECT id FROM users WHERE email = ?').get(user.email);
 
         if (existingUser) {
             userId = existingUser.id;
         } else {
             userId = generateId();
-            const insertUser = db.prepare('INSERT INTO users (id, name, email, role) VALUES (?, ?, ?, ?)');
-            insertUser.run(userId, user.name, user.email, user.role || 'attendee');
+            prepare('INSERT INTO users (id, name, email, role) VALUES (?, ?, ?, ?)').run(userId, user.name, user.email, user.role || 'attendee');
         }
 
         // 2. Create Registration
         const regId = generateId();
-        const insertReg = db.prepare('INSERT INTO registrations (id, event_id, user_id) VALUES (?, ?, ?)');
-        insertReg.run(regId, eventId, userId);
+        prepare('INSERT INTO registrations (id, event_id, user_id) VALUES (?, ?, ?)').run(regId, eventId, userId);
 
         res.json({ success: true, registrationId: regId, message: 'Registration successful' });
     } catch (error) {
@@ -41,7 +41,6 @@ router.post('/register', (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
-
 
 // Get All Registrations (for Admin Dashboard)
 router.get('/registrations', (req, res) => {
@@ -63,8 +62,7 @@ router.get('/registrations', (req, res) => {
             JOIN events e ON r.event_id = e.id
             ORDER BY r.timestamp DESC
         `;
-        const stmt = db.prepare(query);
-        const registrations = stmt.all();
+        const registrations = prepare(query).all();
         res.json(registrations);
     } catch (error) {
         console.error('Error fetching registrations:', error);
@@ -73,4 +71,3 @@ router.get('/registrations', (req, res) => {
 });
 
 export default router;
-

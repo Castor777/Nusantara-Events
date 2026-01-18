@@ -25,10 +25,11 @@ enum ViewMode {
 
 const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.DIRECTORY);
-  const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.ALL);
+  const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'FEATURED'>('FEATURED');
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   const [user, setUser] = useState<User | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -69,7 +70,14 @@ const App: React.FC = () => {
 
   const filteredEvents = useMemo(() => {
     let events = EVENTS_DATA;
-    if (selectedCategory !== EventCategory.ALL) events = events.filter(e => e.category === selectedCategory);
+
+    // Special "FEATURED" view shows only featured events
+    if (selectedCategory === 'FEATURED') {
+      events = events.filter(e => e.featured);
+    } else if (selectedCategory !== EventCategory.ALL) {
+      events = events.filter(e => e.category === selectedCategory);
+    }
+
     if (aiSearchResults !== null) {
       const orderMap = new Map<string, number>(aiSearchResults.map((id, index) => [id, index]));
       return events.filter(e => aiSearchResults.includes(e.id)).sort((a, b) => (orderMap.get(a.id) ?? 999) - (orderMap.get(b.id) ?? 999));
@@ -78,7 +86,9 @@ const App: React.FC = () => {
       const lowerQuery = searchQuery.toLowerCase();
       events = events.filter(e => e.name.toLowerCase().includes(lowerQuery) || e.location.toLowerCase().includes(lowerQuery) || e.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
     }
-    return events;
+
+    // Limit events to 50 per category to prevent UI flooding
+    return events.slice(0, 50);
   }, [selectedCategory, searchQuery, aiSearchResults]);
 
   const getTranslatedCategory = (category: string) => {
@@ -166,11 +176,29 @@ const App: React.FC = () => {
       <main className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${viewMode !== ViewMode.DIRECTORY ? 'pt-24' : ''}`}>
         {viewMode === ViewMode.DIRECTORY && (
           <div className="flex flex-col lg:flex-row gap-8">
-            <aside className={`lg:w-64 flex-shrink-0 hidden lg:block`}>
-              <div className="sticky top-24">
+            <aside className={`lg:w-64 flex-shrink-0 hidden lg:block -mt-64`}>
+              <div className="sticky top-4">
                 <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><Filter size={16} className="text-mantis-400" /> {t.industries}</h3>
-                <div className="space-y-1">
-                  {EVENT_CATEGORIES.map((category) => (
+                <div className="relative mb-3">
+                  <input
+                    type="text"
+                    placeholder="Filter categories..."
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:border-mantis-500/50 transition-colors"
+                  />
+                  {categoryFilter && (
+                    <button onClick={() => setCategoryFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                  <button onClick={() => setSelectedCategory('FEATURED')} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === 'FEATURED' ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>⭐ Featured Events</button>
+                  {EVENT_CATEGORIES.filter(cat =>
+                    categoryFilter === '' ||
+                    getTranslatedCategory(cat).toLowerCase().includes(categoryFilter.toLowerCase())
+                  ).map((category) => (
                     <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{getTranslatedCategory(category)}</button>
                   ))}
                 </div>
