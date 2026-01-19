@@ -13,7 +13,8 @@ import RegistrationModal from './components/RegistrationModal';
 import LanguageSelector from './components/LanguageSelector';
 import { EVENTS_DATA, EVENT_CATEGORIES, SPONSORSHIPS_DATA, TRANSLATIONS } from './constants';
 import { EventCategory, User, Language, Registration, Event } from './types';
-import { semanticSearchEvents } from './services/geminiService';
+import { semanticSearchEvents, translateBatch } from './services/geminiService';
+import { getCategoryTranslation } from './utils/categoryTranslations';
 import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut, Users, Ticket } from 'lucide-react';
 
 enum ViewMode {
@@ -29,7 +30,9 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [eventTranslations, setEventTranslations] = useState<Record<string, string>>({});
 
   const [user, setUser] = useState<User | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -44,6 +47,7 @@ const App: React.FC = () => {
     setViewMode(ViewMode.DIRECTORY);
     setSearchQuery(query);
     setAiSearchResults(null);
+    setSearchError(null);
     if (!query.trim()) return;
     if (useAi) {
       setIsSearching(true);
@@ -51,8 +55,14 @@ const App: React.FC = () => {
         const matchingIds = await semanticSearchEvents(query, EVENTS_DATA);
         setAiSearchResults(matchingIds);
         setSelectedCategory(EventCategory.ALL);
-      } catch (err) { console.error("Search failed", err); }
-      finally { setIsSearching(false); }
+        setSearchError(null);
+      } catch (err) {
+        console.error("Search failed", err);
+        setSearchError("AI search temporarily unavailable. Please try regular search or try again later.");
+        setAiSearchResults(null);
+      } finally {
+        setIsSearching(false);
+      }
     }
   };
 
@@ -92,16 +102,40 @@ const App: React.FC = () => {
   }, [selectedCategory, searchQuery, aiSearchResults]);
 
   const getTranslatedCategory = (category: string) => {
-    switch (category) {
-      case 'All Events': return t.allEvents;
-      case 'Technology & AI': return t.tech;
-      case 'Fintech & Crypto': return t.finance;
-      case 'Lifestyle & Culture': return t.lifestyle;
-      case 'B2B Trade Show': return t.b2b;
-      case 'Startup & VC': return t.startup;
-      default: return category;
-    }
+    return getCategoryTranslation(category as EventCategory, language);
   };
+
+  // Batch translate all event descriptions when language changes
+  React.useEffect(() => {
+    const batchTranslateEvents = async () => {
+      if (language === 'en') {
+        setEventTranslations({});
+        return;
+      }
+
+      // Get all unique descriptions from filtered events
+      const descriptions = filteredEvents.map(e => e.description);
+
+      if (descriptions.length === 0) return;
+
+      try {
+        const translated = await translateBatch(descriptions, language);
+
+        // Map translations back to event IDs
+        const translationMap: Record<string, string> = {};
+        filteredEvents.forEach((event, index) => {
+          translationMap[event.id] = translated[index];
+        });
+
+        setEventTranslations(translationMap);
+      } catch (error) {
+        console.error('Batch translation failed:', error);
+        setEventTranslations({});
+      }
+    };
+
+    batchTranslateEvents();
+  }, [language, filteredEvents]);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-mantis-500/30">
@@ -175,41 +209,54 @@ const App: React.FC = () => {
 
       <main className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${viewMode !== ViewMode.DIRECTORY ? 'pt-24' : ''}`}>
         {viewMode === ViewMode.DIRECTORY && (
-          <div className="flex flex-col lg:flex-row gap-8">
-            <aside className={`lg:w-64 flex-shrink-0 hidden lg:block -mt-64`}>
-              <div className="sticky top-4">
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><Filter size={16} className="text-mantis-400" /> {t.industries}</h3>
-                <div className="relative mb-3">
-                  <input
-                    type="text"
-                    placeholder="Filter categories..."
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:border-mantis-500/50 transition-colors"
-                  />
-                  {categoryFilter && (
-                    <button onClick={() => setCategoryFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
-                      <X size={14} />
-                    </button>
-                  )}
+          <>
+            {searchError && (
+              <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+                <div className="flex-1">
+                  <p className="text-red-400 text-sm font-semibold">{searchError}</p>
                 </div>
-                <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
-                  <button onClick={() => setSelectedCategory('FEATURED')} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === 'FEATURED' ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>⭐ Featured Events</button>
-                  {EVENT_CATEGORIES.filter(cat =>
-                    categoryFilter === '' ||
-                    getTranslatedCategory(cat).toLowerCase().includes(categoryFilter.toLowerCase())
-                  ).map((category) => (
-                    <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{getTranslatedCategory(category)}</button>
-                  ))}
-                </div>
+                <button onClick={() => setSearchError(null)} className="text-red-400 hover:text-red-300">
+                  <X size={18} />
+                </button>
               </div>
-            </aside>
-            <div className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredEvents.map((event) => <EventCard key={event.id} event={event} user={user} language={language} onRegister={handleNewRegistration} />)}
+            )}
+            <div className="flex flex-col lg:flex-row gap-8">
+              <aside className={`lg:w-64 flex-shrink-0 hidden lg:block -mt-64`}>
+                <div className="sticky top-4">
+                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><Filter size={16} className="text-mantis-400" /> {t.industries}</h3>
+                  <div className="relative mb-3">
+                    <input
+                      type="text"
+                      placeholder={t.filterCategories}
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:border-mantis-500/50 transition-colors"
+                    />
+                    {categoryFilter && (
+                      <button onClick={() => setCategoryFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                    <button onClick={() => setSelectedCategory('FEATURED')} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === 'FEATURED' ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>⭐ {t.featuredEvents}</button>
+                    {EVENT_CATEGORIES.filter(cat =>
+                      categoryFilter === '' ||
+                      getTranslatedCategory(cat).toLowerCase().includes(categoryFilter.toLowerCase())
+                    ).map((category) => (
+                      <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{getTranslatedCategory(category)}</button>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+              <div className="flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredEvents.map((event) => <EventCard key={event.id} event={event} user={user} language={language} onRegister={handleNewRegistration} translatedDescription={eventTranslations[event.id]} />)}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
         {viewMode === ViewMode.SPONSORSHIPS && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{SPONSORSHIPS_DATA.map((item) => <SponsorshipCard key={item.id} item={item} />)}</div>}
         {viewMode === ViewMode.DASHBOARD && <OrganizerDashboard user={user} registrations={registrations} language={language} />}

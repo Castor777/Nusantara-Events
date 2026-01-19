@@ -1,45 +1,29 @@
 
-import React, { useState, useEffect } from 'react';
-import { Event, User, Registration, Language } from '../types';
+import React, { useState } from 'react';
+import { Event, User, Registration, Language, EventCategory } from '../types';
 import { MapPin, Calendar, Star, Leaf, Users } from 'lucide-react';
 import RegistrationModal from './RegistrationModal';
 import { TRANSLATIONS } from '../constants';
-import { translateText } from '../services/geminiService';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 interface EventCardProps {
   event: Event;
   user: User | null;
   language: Language;
   onRegister?: (reg: Registration) => void;
+  translatedDescription?: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister, translatedDescription }) => {
   const [showRegModal, setShowRegModal] = useState(false);
-  const [translatedDesc, setTranslatedDesc] = useState(event.description);
   const t = TRANSLATIONS[language];
 
-  useEffect(() => {
-    const fetchTranslation = async () => {
-      if (language === 'en') {
-        setTranslatedDesc(event.description);
-      } else {
-        const result = await translateText(event.description, language);
-        setTranslatedDesc(result);
-      }
-    };
-    fetchTranslation();
-  }, [language, event.description]);
+  // Use the provided translation or fall back to original description
+  const displayDescription = translatedDescription || event.description;
 
-  // Translate category enum key
+  // Use centralized category translation
   const getTranslatedCategory = (category: string) => {
-    switch (category) {
-      case 'Technology & AI': return t.tech;
-      case 'Fintech & Crypto': return t.finance;
-      case 'Lifestyle & Culture': return t.lifestyle;
-      case 'B2B Trade Show': return t.b2b;
-      case 'Startup & VC': return t.startup;
-      default: return category;
-    }
+    return getCategoryTranslation(category as EventCategory, language);
   };
 
   // Determine if this event is high-priority for the user
@@ -105,7 +89,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
           </div>
 
           <p className="text-slate-400 text-sm mb-4 line-clamp-2 flex-grow leading-relaxed font-normal">
-            {translatedDesc}
+            {displayDescription}
           </p>
 
           <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-700/50">
@@ -116,8 +100,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
             <button
               onClick={() => setShowRegModal(true)}
               className={`${isHighIntent
-                  ? 'bg-gradient-to-r from-mantis-500 to-emerald-600 hover:from-mantis-400 hover:to-emerald-500 scale-105 shadow-xl shadow-mantis-500/40 ring-2 ring-mantis-500/20 active:scale-95'
-                  : 'bg-mantis-600 hover:bg-mantis-500 shadow-lg shadow-mantis-500/20'
+                ? 'bg-gradient-to-r from-mantis-500 to-emerald-600 hover:from-mantis-400 hover:to-emerald-500 scale-105 shadow-xl shadow-mantis-500/40 ring-2 ring-mantis-500/20 active:scale-95'
+                : 'bg-mantis-600 hover:bg-mantis-500 shadow-lg shadow-mantis-500/20'
                 } text-white font-semibold uppercase text-xs tracking-widest py-3 px-6 rounded-xl transition-all duration-300`}
             >
               {isHighIntent ? 'Register Now' : t.register}

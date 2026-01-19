@@ -90,6 +90,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
   const [selectedTicketType, setSelectedTicketType] = useState<TicketType>('Standard');
   const [dispatchStatus, setDispatchStatus] = useState({ ai: 'pending', whatsapp: 'pending', email: 'pending', payment: 'pending' });
   const [aiBriefing, setAiBriefing] = useState<{ whatsapp: string, email: string } | null>(null);
+  const [backendSyncFailed, setBackendSyncFailed] = useState(false);
 
   // WhatsApp Live Simulation State
   const [streamedMessage, setStreamedMessage] = useState("");
@@ -190,7 +191,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
   const handleFinish = async () => {
     // Also register in the backend database
     try {
-      await registerForEvent({
+      const result = await registerForEvent({
         eventId: event.id,
         user: {
           name: formData.name,
@@ -198,8 +199,12 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
           role: selectedTicketType === 'VIP' ? 'vip' : 'attendee'
         }
       });
+      if (!result.success) {
+        setBackendSyncFailed(true);
+      }
     } catch (error) {
       console.error('Backend registration failed:', error);
+      setBackendSyncFailed(true);
       // Continue anyway - local state will still be updated
     }
 
@@ -610,6 +615,15 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
                   )}
                 </div>
               </div>
+
+              {backendSyncFailed && (
+                <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 flex items-start gap-3">
+                  <Info size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-yellow-400 text-xs font-semibold">
+                    Note: Your registration is confirmed locally, but backend sync is temporarily unavailable. Your ticket remains valid.
+                  </p>
+                </div>
+              )}
 
               <div className="pt-6">
                 <button onClick={handleFinish} className="w-full bg-white text-slate-900 py-7 rounded-3xl font-black uppercase text-sm tracking-[0.3em] shadow-[0_20px_60px_rgba(255,255,255,0.1)] hover:bg-slate-100 hover:scale-[1.02] transition-all active:scale-95">{t.enterPortal}</button>
