@@ -11,11 +11,12 @@ import LoginModal from './components/LoginModal';
 import QRScannerModal from './components/QRScannerModal';
 import RegistrationModal from './components/RegistrationModal';
 import LanguageSelector from './components/LanguageSelector';
+import { MapView } from './components/MapView';
 import { EVENTS_DATA, EVENT_CATEGORIES, SPONSORSHIPS_DATA, TRANSLATIONS } from './constants';
 import { EventCategory, User, Language, Registration, Event } from './types';
 import { semanticSearchEvents, translateBatch } from './services/geminiService';
 import { getCategoryTranslation } from './utils/categoryTranslations';
-import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut, Users, Ticket } from 'lucide-react';
+import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut, Users, Ticket, Map } from 'lucide-react';
 
 enum ViewMode {
   DIRECTORY = 'Directory',
@@ -24,8 +25,14 @@ enum ViewMode {
   MATCHMAKING = 'Matchmaking'
 }
 
+enum DirectoryViewMode {
+  LIST = 'list',
+  MAP = 'map',
+}
+
 const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.DIRECTORY);
+  const [directoryViewMode, setDirectoryViewMode] = useState<DirectoryViewMode>(DirectoryViewMode.LIST);
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'FEATURED'>('FEATURED');
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
@@ -221,39 +228,71 @@ const App: React.FC = () => {
                 </button>
               </div>
             )}
+
+            {/* Map/List View Toggle */}
+            <div className="flex justify-end mb-4">
+              <div className="inline-flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                <button
+                  onClick={() => setDirectoryViewMode(DirectoryViewMode.LIST)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${directoryViewMode === DirectoryViewMode.LIST ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <LayoutGrid size={14} /> {t.listView || "List View"}
+                </button>
+                <button
+                  onClick={() => setDirectoryViewMode(DirectoryViewMode.MAP)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${directoryViewMode === DirectoryViewMode.MAP ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <Map size={14} /> {t.mapView || "Map View"}
+                </button>
+              </div>
+            </div>
+
             <div className="flex flex-col lg:flex-row gap-8">
-              <aside className={`lg:w-64 flex-shrink-0 hidden lg:block -mt-64`}>
-                <div className="sticky top-4">
-                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><Filter size={16} className="text-mantis-400" /> {t.industries}</h3>
-                  <div className="relative mb-3">
-                    <input
-                      type="text"
-                      placeholder={t.filterCategories}
-                      value={categoryFilter}
-                      onChange={(e) => setCategoryFilter(e.target.value)}
-                      className="w-full px-3 py-2 text-xs bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:border-mantis-500/50 transition-colors"
-                    />
-                    {categoryFilter && (
-                      <button onClick={() => setCategoryFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
-                        <X size={14} />
-                      </button>
-                    )}
+              {directoryViewMode === DirectoryViewMode.LIST && (
+                <aside className={`lg:w-64 flex-shrink-0 hidden lg:block`}>
+                  <div className="sticky top-24">
+                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><Filter size={16} className="text-mantis-400" /> {t.industries}</h3>
+                    <div className="relative mb-3">
+                      <input
+                        type="text"
+                        placeholder={t.filterCategories}
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:border-mantis-500/50 transition-colors"
+                      />
+                      {categoryFilter && (
+                        <button onClick={() => setCategoryFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                      <button onClick={() => setSelectedCategory('FEATURED')} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === 'FEATURED' ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>⭐ {t.featuredEvents}</button>
+                      {EVENT_CATEGORIES.filter(cat =>
+                        categoryFilter === '' ||
+                        getTranslatedCategory(cat).toLowerCase().includes(categoryFilter.toLowerCase())
+                      ).map((category) => (
+                        <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{getTranslatedCategory(category)}</button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
-                    <button onClick={() => setSelectedCategory('FEATURED')} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === 'FEATURED' ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>⭐ {t.featuredEvents}</button>
-                    {EVENT_CATEGORIES.filter(cat =>
-                      categoryFilter === '' ||
-                      getTranslatedCategory(cat).toLowerCase().includes(categoryFilter.toLowerCase())
-                    ).map((category) => (
-                      <button key={category} onClick={() => setSelectedCategory(category)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === category ? 'bg-mantis-600/20 text-mantis-400 border border-mantis-500/30' : 'text-slate-400 hover:bg-slate-800'}`}>{getTranslatedCategory(category)}</button>
-                    ))}
-                  </div>
-                </div>
-              </aside>
+                </aside>
+              )}
               <div className="flex-1">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {filteredEvents.map((event) => <EventCard key={event.id} event={event} user={user} language={language} onRegister={handleNewRegistration} translatedDescription={eventTranslations[event.id]} />)}
-                </div>
+                {directoryViewMode === DirectoryViewMode.LIST ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredEvents.map((event) => <EventCard key={event.id} event={event} user={user} language={language} onRegister={handleNewRegistration} translatedDescription={eventTranslations[event.id]} />)}
+                  </div>
+                ) : (
+                  <MapView
+                    events={filteredEvents}
+                    currentLanguage={language}
+                    onEventClick={(event) => {
+                      // Event click handler - you can add modal or navigation here
+                      console.log('Event clicked:', event);
+                    }}
+                  />
+                )}
               </div>
             </div>
           </>

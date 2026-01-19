@@ -12326,6 +12326,8 @@ const EN_TRANS = {
   industries: "Industries",
   filterCategories: "Filter categories...",
   featuredEvents: "Featured Events",
+  mapView: "Map View",
+  listView: "List View",
   register: "Register",
   from: "From",
   attendees: "Attendees",

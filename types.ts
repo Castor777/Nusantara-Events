@@ -127,6 +127,12 @@ export enum EventCategory {
   STARTUP_VC = 'Startup & VC',
 }
 
+export enum ViewMode {
+  DIRECTORY = 'directory',
+  MAP = 'map',
+  CALENDAR = 'calendar',
+}
+
 export type Language = 'en' | 'id' | 'th' | 'zh' | 'vi' | 'ms' | 'tl' | 'km' | 'my' | 'lo';
 
 export interface User {
