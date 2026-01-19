@@ -85,7 +85,8 @@ const App: React.FC = () => {
     }
   };
 
-  const filteredEvents = useMemo(() => {
+  // Get all filtered events without limit (for list view background)
+  const allFilteredEvents = useMemo(() => {
     let events = EVENTS_DATA;
 
     // Special "FEATURED" view shows only featured events
@@ -104,9 +105,30 @@ const App: React.FC = () => {
       events = events.filter(e => e.name.toLowerCase().includes(lowerQuery) || e.location.toLowerCase().includes(lowerQuery) || e.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
     }
 
-    // Limit events to 50 per category to prevent UI flooding
-    return events.slice(0, 50);
+    return events;
   }, [selectedCategory, searchQuery, aiSearchResults]);
+
+  // All events for map view (no category filtering - shows everything)
+  const mapEvents = useMemo(() => {
+    let events = EVENTS_DATA;
+
+    // Only apply search filtering, not category filtering
+    if (aiSearchResults !== null) {
+      const orderMap = new Map<string, number>(aiSearchResults.map((id, index) => [id, index]));
+      return events.filter(e => aiSearchResults.includes(e.id)).sort((a, b) => (orderMap.get(a.id) ?? 999) - (orderMap.get(b.id) ?? 999));
+    }
+    if (searchQuery && aiSearchResults === null) {
+      const lowerQuery = searchQuery.toLowerCase();
+      events = events.filter(e => e.name.toLowerCase().includes(lowerQuery) || e.location.toLowerCase().includes(lowerQuery) || e.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
+    }
+
+    return events;
+  }, [searchQuery, aiSearchResults]);
+
+  // Limit events for list view to prevent UI flooding
+  const filteredEvents = useMemo(() => {
+    return allFilteredEvents.slice(0, 50);
+  }, [allFilteredEvents]);
 
   const getTranslatedCategory = (category: string) => {
     return getCategoryTranslation(category as EventCategory, language);
@@ -285,11 +307,11 @@ const App: React.FC = () => {
                   </div>
                 ) : (
                   <MapView
-                    events={filteredEvents}
+                    events={mapEvents}
                     currentLanguage={language}
                     onEventClick={(event) => {
-                      // Event click handler - you can add modal or navigation here
-                      console.log('Event clicked:', event);
+                      setDirectoryViewMode(DirectoryViewMode.LIST);  // Switch to list view
+                      setAutoRegisterEvent(event);  // Opens RegistrationModal with event details
                     }}
                   />
                 )}
