@@ -7,11 +7,13 @@ import { Event, Exhibitor, MatchResult, User, PredictionResult, Language } from 
  * following SDK guidelines and initializing inside the function call.
  */
 const safeGenerate = async (model: string, prompt: string, config: any = {}) => {
-  if (!process.env.API_KEY) {
-    console.error("GEMINI_API_KEY environment variable is not configured");
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("VITE_GEMINI_API_KEY environment variable is not configured");
     return null;
   }
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
+
   try {
     const response = await ai.models.generateContent({
       model,
@@ -154,17 +156,35 @@ ${numberedTexts}`;
 };
 
 export const semanticSearchEvents = async (query: string, availableEvents: Event[]): Promise<string[]> => {
-  const context = availableEvents.map(e => ({ id: e.id, name: e.name, loc: e.location, tags: e.tags }));
-  const prompt = `Search Query: "${query}". Context: ${JSON.stringify(context)}. Return a JSON array of event IDs that match the intent. Return ONLY the array.`;
-
-  const result = await safeGenerate("gemini-2.0-flash-exp", prompt, {
-    responseMimeType: "application/json",
-    responseSchema: { type: Type.ARRAY, items: { type: Type.STRING } }
-  });
-
   try {
-    return JSON.parse(result || "[]");
-  } catch {
+    // Limit events to prevent context size issues (take first 100 for search context)
+    const limitedEvents = availableEvents.slice(0, 100);
+    const context = limitedEvents.map(e => ({ id: e.id, name: e.name, loc: e.location, tags: e.tags }));
+    const prompt = `Search Query: "${query}". Context: ${JSON.stringify(context)}. Return a JSON array of event IDs that match the intent. Return ONLY the array.`;
+
+    console.log(`🔍 AI Search: query="${query}", searching ${limitedEvents.length} events`);
+
+    const result = await safeGenerate("gemini-2.0-flash-exp", prompt, {
+      responseMimeType: "application/json",
+      responseSchema: { type: Type.ARRAY, items: { type: Type.STRING } }
+    });
+
+    console.log(`🔍 AI Search result:`, result);
+
+    if (!result) {
+      console.warn("⚠️ AI Search returned null/undefined");
+      return [];
+    }
+
+    const parsed = JSON.parse(result);
+    if (!Array.isArray(parsed)) {
+      console.warn("⚠️ AI Search returned non-array:", parsed);
+      return [];
+    }
+
+    return parsed;
+  } catch (error) {
+    console.error("❌ AI Search error:", error);
     return [];
   }
 };

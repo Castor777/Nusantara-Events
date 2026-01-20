@@ -16,7 +16,7 @@ import { EVENTS_DATA, EVENT_CATEGORIES, SPONSORSHIPS_DATA, TRANSLATIONS } from '
 import { EventCategory, User, Language, Registration, Event } from './types';
 import { semanticSearchEvents, translateBatch } from './services/geminiService';
 import { getCategoryTranslation } from './utils/categoryTranslations';
-import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut, Users, Ticket, Map } from 'lucide-react';
+import { LayoutGrid, Filter, AlertCircle, X, Calendar, Globe, LogOut, Users, Ticket, Map as MapIcon } from 'lucide-react';
 
 enum ViewMode {
   DIRECTORY = 'Directory',
@@ -264,7 +264,7 @@ const App: React.FC = () => {
                   onClick={() => setDirectoryViewMode(DirectoryViewMode.MAP)}
                   className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${directoryViewMode === DirectoryViewMode.MAP ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
-                  <Map size={14} /> {t.mapView || "Map View"}
+                  <MapIcon size={14} /> {t.mapView || "Map View"}
                 </button>
               </div>
             </div>
