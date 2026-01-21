@@ -3,7 +3,7 @@
  * Connects frontend to SQLite backend via Express API
  */
 
-const API_BASE_URL = 'http://localhost:3002/api';
+const API_BASE_URL = '/api';
 
 interface ApiEvent {
     id: string;
@@ -101,7 +101,8 @@ export const registerForEvent = async (payload: RegisterPayload): Promise<Regist
 export const checkApiHealth = async (): Promise<boolean> => {
     try {
         const response = await fetch(`${API_BASE_URL}/health`);
-        return response.ok;
+        const data = await response.json();
+        return response.ok && data.status === 'ok';
     } catch {
         return false;
     }

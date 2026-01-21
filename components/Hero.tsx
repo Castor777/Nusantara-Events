@@ -57,13 +57,13 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
       </div>
 
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-        <h1 className="text-5xl font-medium tracking-tight text-white sm:text-7xl lg:text-8xl mb-8 leading-[0.9] font-display">
+        <h1 className="text-4xl font-medium tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 leading-[0.9] font-display">
           <span className="block opacity-60 text-xl sm:text-2xl mb-4 font-sans tracking-[0.4em] uppercase">{t.upcoming}</span>
           <span className="italic text-transparent bg-clip-text bg-gradient-to-br from-white via-mantis-200 to-emerald-600 drop-shadow-2xl">
             SEA Trade Events
           </span>
         </h1>
-        <p className="mx-auto max-w-xl text-lg text-slate-400 mb-12 font-medium leading-relaxed tracking-wide opacity-80 italic">
+        <p className="mx-auto max-w-xl text-base sm:text-lg text-slate-400 mb-8 sm:mb-12 font-medium leading-relaxed tracking-wide opacity-80 italic px-2">
           {t.heroSubtitle}
         </p>
 
@@ -76,8 +76,8 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
               </div>
               <input
                 type="text"
-                className="flex-1 bg-transparent border-none text-white placeholder-slate-500 focus:ring-0 focus:outline-none px-4 py-2 text-lg font-medium"
-                placeholder={t.searchPlaceholder}
+                className="flex-1 bg-transparent border-none text-white placeholder-slate-500 focus:ring-0 focus:outline-none px-2 sm:px-4 py-2 text-base sm:text-lg font-medium"
+                placeholder={typeof window !== 'undefined' && window.innerWidth < 640 ? 'Find events...' : t.searchPlaceholder}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
               />
@@ -85,7 +85,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
                 <button
                   type="button"
                   onClick={onOpenScanner}
-                  className="p-2 text-slate-400 hover:text-mantis-400 transition-colors"
+                  className="p-2 sm:p-2 text-slate-400 hover:text-mantis-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   title="Scan QR Code"
                 >
                   <QrCode size={24} />
@@ -102,7 +102,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch, onOpenScanner, isSearching, langu
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-semibold uppercase text-[10px] tracking-widest transition-colors"
+                  className="bg-slate-700 hover:bg-slate-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold uppercase text-[10px] tracking-widest transition-colors min-w-[44px] min-h-[44px]"
                 >
                   {t.find}
                 </button>

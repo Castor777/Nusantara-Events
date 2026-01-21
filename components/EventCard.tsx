@@ -44,7 +44,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
       )}
 
       <div className="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-mantis-500 transition-all duration-300 hover:shadow-lg hover:shadow-mantis-500/10 flex flex-col h-full">
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-40 sm:h-48 overflow-hidden">
           <img
             src={event.image}
             alt={event.name}
@@ -68,7 +68,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
             <span className="text-[10px] text-mantis-400 font-semibold uppercase tracking-widest mb-1 block">
               {getTranslatedCategory(event.category)}
             </span>
-            <h3 className="text-xl font-medium text-white group-hover:text-mantis-400 transition-colors uppercase">
+            <h3 className="text-lg sm:text-xl font-medium text-white group-hover:text-mantis-400 transition-colors uppercase leading-tight">
               {event.name}
             </h3>
           </div>
@@ -102,7 +102,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, user, language, onRegister
               className={`${isHighIntent
                 ? 'bg-gradient-to-r from-mantis-500 to-emerald-600 hover:from-mantis-400 hover:to-emerald-500 scale-105 shadow-xl shadow-mantis-500/40 ring-2 ring-mantis-500/20 active:scale-95'
                 : 'bg-mantis-600 hover:bg-mantis-500 shadow-lg shadow-mantis-500/20'
-                } text-white font-semibold uppercase text-xs tracking-widest py-3 px-6 rounded-xl transition-all duration-300`}
+                } text-white font-semibold uppercase text-xs tracking-widest py-3 px-4 sm:px-6 rounded-xl transition-all duration-300 w-full sm:w-auto min-h-[44px]`}
             >
               {isHighIntent ? 'Register Now' : t.register}
             </button>

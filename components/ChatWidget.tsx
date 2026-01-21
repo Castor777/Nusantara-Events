@@ -36,7 +36,7 @@ const ChatWidget: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-end">
       {isOpen && (
         <div className="mb-4 w-80 sm:w-96 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[500px]">
           <div className="bg-slate-900 p-4 border-b border-slate-700 flex justify-between items-center">
@@ -53,15 +53,14 @@ const ChatWidget: React.FC = () => {
               <X size={18} />
             </button>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-850">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
-                  msg.role === 'user' 
-                    ? 'bg-mantis-600 text-white rounded-br-sm' 
-                    : 'bg-slate-700 text-slate-200 rounded-bl-sm'
-                }`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${msg.role === 'user'
+                  ? 'bg-mantis-600 text-white rounded-br-sm'
+                  : 'bg-slate-700 text-slate-200 rounded-bl-sm'
+                  }`}>
                   {msg.text}
                 </div>
               </div>
@@ -93,7 +92,7 @@ const ChatWidget: React.FC = () => {
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-14 w-14 rounded-full bg-mantis-500 hover:bg-mantis-400 text-slate-900 shadow-lg shadow-mantis-500/20 flex items-center justify-center transition-transform hover:scale-105"
+        className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-mantis-500 hover:bg-mantis-400 text-slate-900 shadow-lg shadow-mantis-500/20 flex items-center justify-center transition-transform hover:scale-105"
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={28} />}
       </button>

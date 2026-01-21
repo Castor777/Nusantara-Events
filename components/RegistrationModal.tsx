@@ -10,6 +10,7 @@ import { Event, User, Registration, Language } from '../types';
 import { generatePersonalizedBriefing } from '../services/geminiService';
 import { registerForEvent } from '../services/api';
 import { TRANSLATIONS } from '../constants';
+import StripePayment from './StripePayment';
 
 // --- ENHANCED BRANDED SVG COMPONENTS ---
 const PayNowIcon = () => (
@@ -78,7 +79,7 @@ type TicketType = 'Standard' | 'VIP' | 'Group';
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onClose, onSuccess, language = 'en' }) => {
   const t = TRANSLATIONS[language];
-  const [step, setStep] = useState<'contact' | 'whatsapp-setup' | 'whatsapp-otp' | 'tickets' | 'profile' | 'payment' | 'qr-simulate' | 'processing' | 'confirmation'>('contact');
+  const [step, setStep] = useState<'contact' | 'whatsapp-setup' | 'whatsapp-otp' | 'tickets' | 'profile' | 'payment' | 'stripe-payment' | 'qr-simulate' | 'processing' | 'confirmation'>('contact');
   const [loading, setLoading] = useState(false);
   const [useWhatsAppFirst, setUseWhatsAppFirst] = useState(false);
 
@@ -112,12 +113,13 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
       { id: 'qris', name: 'QRIS / E-Wallet', description: t.qrisDesc, icon: QRISIcon, type: 'qr', recommended: event.currency === 'IDR' },
       { id: 'promptpay', name: 'PromptPay TH', description: t.promptpayDesc, icon: PromptPayIcon, type: 'qr', recommended: event.currency === 'THB' },
       { id: 'grabpay', name: 'GrabPay', description: t.grabpayDesc, icon: GrabPayIcon, type: 'wallet', recommended: true },
+      { id: 'stripe', name: 'Card / PayNow', description: 'Secure Stripe Checkout', icon: CreditCard, type: 'stripe', bg: 'bg-indigo-600', color: 'text-white', recommended: true },
       { id: 'card', name: 'Credit Card', description: 'Visa / MasterCard / AMEX', icon: VisaMasterIcon, type: 'card', bg: 'bg-slate-700/50', color: 'text-indigo-400' }
     ];
 
-    if (event.currency === 'SGD') return methods.filter(m => ['paynow', 'grabpay', 'card'].includes(m.id));
-    if (event.currency === 'IDR') return methods.filter(m => ['qris', 'grabpay', 'card'].includes(m.id));
-    if (event.currency === 'THB') return methods.filter(m => ['promptpay', 'grabpay', 'card'].includes(m.id));
+    if (event.currency === 'SGD') return methods.filter(m => ['paynow', 'grabpay', 'stripe', 'card'].includes(m.id));
+    if (event.currency === 'IDR') return methods.filter(m => ['qris', 'grabpay', 'stripe', 'card'].includes(m.id));
+    if (event.currency === 'THB') return methods.filter(m => ['promptpay', 'grabpay', 'stripe', 'card'].includes(m.id));
 
     return methods;
   };
@@ -479,9 +481,50 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
                 </div>
               </div>
 
-              <button onClick={() => getRegionalMethods().find(m => m.id === paymentMethod)?.type === 'qr' ? setStep('qr-simulate') : handleFinalize()} disabled={!paymentMethod} className="w-full bg-gradient-to-r from-mantis-600 to-emerald-600 py-7 rounded-[2.5rem] text-white font-black uppercase text-sm tracking-[0.3em] shadow-[0_0_50px_rgba(76,175,80,0.2)] hover:from-mantis-500 hover:to-emerald-500 transition-all flex items-center justify-center gap-4 group active:scale-[0.98]">
+              <button onClick={() => {
+                const method = getRegionalMethods().find(m => m.id === paymentMethod);
+                if (method?.type === 'stripe') {
+                  setStep('stripe-payment');
+                } else if (method?.type === 'qr') {
+                  setStep('qr-simulate');
+                } else {
+                  handleFinalize();
+                }
+              }} disabled={!paymentMethod} className="w-full bg-gradient-to-r from-mantis-600 to-emerald-600 py-7 rounded-[2.5rem] text-white font-black uppercase text-sm tracking-[0.3em] shadow-[0_0_50px_rgba(76,175,80,0.2)] hover:from-mantis-500 hover:to-emerald-500 transition-all flex items-center justify-center gap-4 group active:scale-[0.98]">
                 <Zap size={22} fill="currentColor" className="group-hover:scale-110 transition-transform" /> {t.authSettlement}
               </button>
+            </div>
+          )}
+
+          {step === 'stripe-payment' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter">Secure Payment</h2>
+                <button onClick={() => setStep('payment')} className="text-slate-500 hover:text-white text-xs uppercase tracking-widest">← Back</button>
+              </div>
+              <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 mb-4">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Total Amount:</span>
+                  <span className="text-2xl font-black text-white">{getCurrencySymbol()} {convertPrice(totalPrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+              <StripePayment
+                amount={convertPrice(totalPrice)}
+                currency={selectedCurrency === 'BASE' ? event.currency.toLowerCase() : selectedCurrency.toLowerCase()}
+                eventId={event.id}
+                eventName={event.name}
+                userEmail={formData.email}
+                onSuccess={(paymentIntentId) => {
+                  console.log('✅ Payment successful:', paymentIntentId);
+                  setStep('processing');
+                }}
+                onError={(error) => {
+                  console.error('❌ Payment failed:', error);
+                }}
+                onCancel={() => {
+                  setStep('payment');
+                }}
+              />
             </div>
           )}
 
@@ -499,7 +542,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ event, user, onCl
                 <div className={`absolute -inset-4 bg-gradient-to-r from-mantis-500 to-indigo-600 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000`}></div>
                 <div className="relative bg-white p-12 rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]"><QrCode size={250} className="text-slate-900" /></div>
                 <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 border border-slate-700 rounded-full flex items-center gap-3 shadow-2xl whitespace-nowrap">
-                  <div className="w-2.5 h-2.5 rounded-full bg-mantis-500 animate-pulse"></div>
+                  <div className="w-2.5 h-2.5 bg-mantis-500 rounded-full animate-pulse"></div>
                   <span className="text-[11px] font-black text-white uppercase tracking-widest">{t.awaitingPulse}</span>
                 </div>
               </div>
